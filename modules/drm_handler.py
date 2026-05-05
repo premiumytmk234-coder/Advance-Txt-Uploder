@@ -22,7 +22,7 @@ import globals
 from utils import progress_bar
 from vars import API_ID, API_HASH, BOT_TOKEN, OWNER, CREDIT, AUTH_USERS, TOTAL_USERS, cookies_file_path
 
-# .....,.....,.......,...,.......,....., .....,.....,.......,...,.......,.....,
+# .....,.....,.......,...,.......,....., .....,.....,.......,...,.......,.....
 
 async def drm_handler(bot: Client, m: Message):
     globals.processing_request = True
@@ -267,21 +267,22 @@ async def drm_handler(bot: Client, m: Message):
             if "acecwply" in url:
                 cmd = f'yt-dlp -o "{name}.%(ext)s" -f "bestvideo[height<={raw_text2}]+bestaudio" --hls-prefer-ffmpeg --no-keep-video --remux-video mkv --no-warning "{url}"'
          
-            
-
-if data.get("keys") and data.get("url"):
-    mpd = data["url"]
-    keys = data["keys"]
-    url = mpd
-    keys_string = " ".join([f"--key {key}" for key in keys])
-else:
-    raise Exception(data.get("error", "Key extraction failed"))
+            elif "https://cpvod.testbook.com/" in url or "classplusapp.com/drm/" in url:
+                url = url.replace(
+                    "https://cpvod.testbook.com/",
+                    "https://media-cdn.classplusapp.com/drm/"
+                )
+                try:
+                    api_url = f"https://covercel.vercel.app/extract_keys?url={url}@bots_updatee&user_id={user_id}"
+                    response = requests.get(api_url)
+                    data = response.json()
+                    if data.get("keys") and data.get("url"):
+                        mpd = data["url"]
+                        keys = data["keys"]
+                        url = mpd
+                        keys_string = " ".join([f"--key {key}" for key in keys])
                     else:
-                        raise Exception(f"{data.get('error', 'Your Classplus token may be expired.')}")
-                        mpd = None
-                        keys = None
-                        url = None
-                        keys_string = None
+                        raise Exception(data.get("error", "Key extraction failed"))
                 except Exception as e:
                     await bot.send_message(channel_id, f'⚠️**Downloading Failed**⚠️\n**Name** =>> `{str(count).zfill(3)} {name1}`\n**Url** =>> {url}\n\n<blockquote expandable><i><b>Failed Reason to sign url: {str(e)}</b></i></blockquote>', disable_web_page_preview=True)
                     count += 1
@@ -289,17 +290,7 @@ else:
                     continue
                     
             elif "tencdn.classplusapp" in url:
-                headers = {'host': 'api.classplusapp.com', 'x-access-token': f'{cptoken}', 'accept-language': 'EN', 'api-version': '18', 'app-version': '1.4.73.2', 'build-number': '35', 'connection': 'Keep-Alive', 'content-type': 'application/json', 'device-details': 'Xiaomi_Redmi 7_SDK-32', 'device-id': 'c28d3cb16bbdac01', 'region': 'IN', 'user-agent': 'Mobile-Android', 'webengage-luid': '00000187-6fe4-5d41-a530-2618685elif "https://cpvod.testbook.com/" in url or "classplusapp.com/drm/" in url:
-    url = url.replace(
-        "https://cpvod.testbook.com/",
-        "https://media-cdn.classplusapp.com/drm/"
-    )
-    try:
-        api_url = f"https://covercel.vercel.app/extract_keys?url={url}@bots_updatee&user_id={user_id}"
-        response = requests.get(api_url)
-        data = response.json()
-    except Exception as e:
-        return await message.reply_text(f"❌ DRM API Error: {e}")8be4c', 'accept-encoding': 'gzip'}
+                headers = {'host': 'api.classplusapp.com', 'x-access-token': f'{cptoken}', 'accept-language': 'EN', 'api-version': '18', 'app-version': '1.4.73.2', 'build-number': '35', 'connection': 'Keep-Alive', 'content-type': 'application/json', 'device-details': 'Xiaomi_Redmi 7_SDK-32', 'device-id': 'c28d3cb16bbdac01', 'region': 'IN', 'user-agent': 'Mobile-Android', 'webengage-luid': '00000187-6fe4-5d41-a530-26186858be4c', 'accept-encoding': 'gzip'}
                 params = {"url": f"{url}"}
                 response = requests.get('https://api.classplusapp.com/cams/uploader/video/jw-signed-url', headers=headers, params=params)
                 url = response.json()['url']  
